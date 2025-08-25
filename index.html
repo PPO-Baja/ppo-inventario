@@ -7,15 +7,6 @@
   <title>PPO - Inventario</title>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
-    /* Desactivar cualquier efecto táctil no deseado */
-    * {
-      -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-    }
     button {
       touch-action: manipulation;
       transform: none !important;
@@ -214,8 +205,9 @@
         ignoreElements: (element) => {
           if (element.closest(".tarjeta") && element.tagName === "BUTTON") return true;
           return false;
-        }
-      }).then(canvas=>{
+        },
+        scale: window.devicePixelRatio // Ajustar para pantallas retina
+      }).then(canvas => {
         let imgData = canvas.toDataURL("image/png");
         document.getElementById("previewImage").src = imgData;
         document.getElementById("previewModal").style.display = "flex";
@@ -231,9 +223,17 @@
               document.getElementById("previewModal").style.display = "none"; // Cerrar modal
             }).catch(error => {
               console.log("Error al compartir:", error);
+              // Resetear contadores incluso si falla el compartir, como respaldo
+              resetearContadores();
+              document.getElementById("previewModal").style.display = "none";
             });
-          });
+          }, "image/png");
+        } else {
+          // Si navigator.share no está disponible, mantener el modal abierto
+          console.log("Compartir no soportado en este navegador");
         }
+      }).catch(error => {
+        console.log("Error en html2canvas:", error);
       });
     }
 
