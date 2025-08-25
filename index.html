@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.json">
+  <title>PPO - Inventario</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    color: #1C1C1C;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .75rem 1rem;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .brand .toyota { color: #EB0A1E; font-weight: 700; }
+  .brand small { color: #4383EA; font-weight: 500; }
+
+  #app { text-align: center; padding: 10px; }
+
+  h2 { margin: 10px 0 5px; font-size: 1.4rem; font-weight: lighter; text-align: center; }
+  p { font-size: 1rem; text-align: center; }
+  #total { font-weight: bold; }
+
+  .contenedor {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .tarjeta {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: .8rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative;
+    height: 150px;           /* 🔹 altura fija */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* 🔹 h3 siempre arriba */
+    padding-top: 15px;
+  }
+
+  .tarjeta h3 {
+    margin-bottom: 5px;
+    font-size:1.2rem;
+    z-index: 3;              /* 🔹 siempre visible */
+    position: relative;
+  }
+
+  .tarjeta button {
+    position: absolute;
+    top: 60%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 100px;
+    font-size: 2rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: #4caf50;
+    color: white;
+    z-index: 2;              /* 🔹 tapa el porcentaje */
+  }
+
+  .tarjeta p {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;              /* 🔹 queda debajo del botón */
+  }
+
+  .acciones {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .acciones button {
+    padding: .9rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+
+  .whatsapp { background: #25d366; color: white; }
+
+  #previewModal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  #previewContent {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 90%;
+    max-height: 90%;
+    text-align: center;
+  }
+
+  #previewContent img { max-width: 100%; border-radius: 10px; }
+
+  #closePreview {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  </style>
+</head>
+
+<body>
+  <!-- Zona que se va a capturar -->
+  <div id="capturaZona">
+    <header class="app-header">
+      <div class="brand">
+        <span class="toyota">PPO</span> <small>Baja California</small>
+      </div>
+      <div>| Post Production Option</div>
+    </header>
+
+    <div id="reporte">
+      <h2>📊 Inventario Pre-Stage</h2>
+      <p>Total: <span id="total">0</span> Unidades</p>
+
+      <div class="contenedor">
+        <div class="tarjeta">
+          <h3>B: <span id="countB">0</span></h3>
+          <button onclick="sumar('B')">+1</button>
+          <p><span id="porcB">0%</span></p>
+        </div>
+
+        <div class="tarjeta">
+          <h3>B1: <span id="countB1">0</span></h3>
+          <button onclick="sumar('B1')">+1</button>
+          <p><span id="porcB1">0%</span></p>
+        </div>
+
+        <div class="tarjeta">
+          <h3>C: <span id="countC">0</span></h3>
+          <button onclick="sumar('C')">+1</button>
+          <p><span id="porcC">0%</span></p>
+        </div>
+
+        <div class="tarjeta">
+          <h3>Pendientes: <span id="countPendientes">0</span></h3>
+          <button onclick="sumar('Pendientes')">+1</button>
+          <p><span id="porcPendientes">0%</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón Capturar (fuera de la zona de captura) -->
+  <div class="acciones">
+    <button onclick="capturar()" class="whatsapp">📸 Capturar</button>
+  </div>
+
+  <!-- Modal de previsualización -->
+  <div id="previewModal">
+    <div id="previewContent">
+      <img id="previewImage" src="" alt="Reporte">
+      <br>
+      <button id="closePreview">Cerrar</button>
+    </div>
+  </div>
+
+  <script>
+  let contadores = { B: 0, B1: 0, C: 0, Pendientes: 0 };
+
+  function sumar(cat){ 
+    contadores[cat]++; 
+    actualizar(); 
+  }
+
+  function actualizar(){
+    let total = Object.values(contadores).reduce((a,b)=>a+b,0);
+    document.getElementById("total").innerText = total;
+    for(let cat in contadores){
+      document.getElementById("count"+cat).innerText = contadores[cat];
+      let porc = total>0 ? Math.round((contadores[cat]/total)*100) : 0;
+      document.getElementById("porc"+cat).innerText = porc+"%";
+    }
+  }
+
+  function capturar(){
+    html2canvas(document.querySelector("#capturaZona"), {
+      ignoreElements: (element) => {
+        // Ignora los botones dentro de las tarjetas
+        if (element.closest(".tarjeta") && element.tagName === "BUTTON") return true;
+        return false;
+      }
+    }).then(canvas=>{
+      let imgData = canvas.toDataURL("image/png");
+      document.getElementById("previewImage").src = imgData;
+      document.getElementById("previewModal").style.display = "flex";
+    });
+  }
+
+  document.getElementById("closePreview").onclick = ()=>{
+    document.getElementById("previewModal").style.display = "none";
+  };
+
+// Registrar el Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(registration => {
+        console.log('Service Worker registrado con éxito:', registration);
+      })
+      .catch(error => {
+        console.log('Error al registrar el Service Worker:', error);
+      });
+  });
+}
+  </script>
+</body>
+</html>
