@@ -208,32 +208,6 @@
       contadores = { B: 0, B1: 0, C: 0, Pendientes: 0 };
       actualizar();
     }
-    
-	// === FUNCIÓN capturar() ACTUALIZADA CON FECHA Y HORA DE TIJUANA ===
-    function capturar() {
-      // Obtener fecha y hora actual en Tijuana
-      const now = new Date();
-      const formatter = new Intl.DateTimeFormat('es-MX', {
-        timeZone: 'America/Tijuana',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-
-      const parts = formatter.formatToParts(now);
-      const dia = parts.find(p => p.type vin === 'day').value;
-      const mes = parts.find(p => p.type === 'month').value;
-      const año = parts.find(p => p.type === 'year').value;
-      const hora = parts.find(p => p.type === 'hour').value;
-      const minuto = parts.find(p => p.type === 'minute').value;
-      const periodo = parts.find(p => p.type === 'dayPeriod').value.toLowerCase().replace('.', '');
-
-      const mesCapitalizado = mes.charAt(0).toUpperCase() + mes.slice(1);
-      const fechaHora = `${dia} de ${mesCapitalizado} de ${año} ${hora}:${minuto} ${periodo}`;
-    
 
     function capturar() {
       html2canvas(document.querySelector("#capturaZona"), {
@@ -252,7 +226,7 @@
             navigator.share({
               files: [file],
               title: "Reporte PPO Inventario",
-              text: "Reporte de inventario PPO Baja California" ${fechaHora}
+              text: "Reporte de inventario PPO Baja California"
             }).then(() => {
               resetearContadores();
               document.getElementById("previewModal").style.display = "none";
@@ -288,5 +262,3 @@
   </script>
 </body>
 </html>
-
-
