@@ -233,10 +233,10 @@
       // Calcular total actual
       const total = Object.values(contadores).reduce((a, b) => a + b, 0);
 
-      // Crear texto para compartir
+      // Texto para compartir
       const leyendaTexto = `Reporte de inventario PPO ${textoFecha} — Total: ${total} unidades`;
 
-      // Capturar la zona sin botones
+      // Capturar la zona sin los botones
       html2canvas(document.querySelector("#capturaZona"), {
         ignoreElements: (element) => {
           if (element.closest(".tarjeta") && element.tagName === "BUTTON") return true;
@@ -248,7 +248,6 @@
         document.getElementById("previewImage").src = imgData;
         document.getElementById("previewModal").style.display = "flex";
 
-        // Intentar compartir
         if (navigator.share) {
           canvas.toBlob(blob => {
             const file = new File([blob], "reporte.png", { type: "image/png" });
@@ -261,12 +260,19 @@
               document.getElementById("previewModal").style.display = "none";
             }).catch(error => {
               console.log("Error al compartir:", error);
+              // Copiar texto al portapapeles si no se muestra
+              navigator.clipboard.writeText(leyendaTexto).then(() => {
+                alert("⚠️ El mensaje fue copiado al portapapeles.\nPégalo manualmente al compartir la imagen.");
+              });
               resetearContadores();
               document.getElementById("previewModal").style.display = "none";
             });
           }, "image/png");
         } else {
-          console.log("Compartir no soportado en este navegador");
+          // Si no hay API de compartir, copiar el texto
+          navigator.clipboard.writeText(leyendaTexto).then(() => {
+            alert("Compartir no soportado. El texto del reporte fue copiado al portapapeles.");
+          });
         }
       }).catch(error => {
         console.log("Error en html2canvas:", error);
