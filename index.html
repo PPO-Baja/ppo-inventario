@@ -85,8 +85,8 @@
     }
     
     .tarjeta button:active {
-      background: #3d8b40;
-      transform: translate(-50%, -48%);
+      background: #3d8b40; /* Color aún más oscuro al hacer clic */
+      transform: translate(-50%, -48%); /* Leve movimiento hacia arriba */
     }
     .tarjeta p {
       position: absolute;
@@ -150,7 +150,7 @@
       <div>| Post Production Option</div>
     </header>
     <div id="reporte">
-      <h2>Inventario Pre-Stage</h2>
+      <h2>📊 Inventario Pre-Stage</h2>
       <p>Total: <span id="total">0</span> Unidades</p>
       <div class="contenedor">
         <div class="tarjeta">
@@ -177,7 +177,7 @@
     </div>
   </div>
   <div class="acciones">
-    <button onclick="capturar()" class="whatsapp">Capturar y Compartir</button>
+    <button onclick="capturar()" class="whatsapp">📸 Capturar y Compartir</button>
   </div>
   <div id="previewModal">
     <div id="previewContent">
@@ -186,7 +186,6 @@
       <button id="closePreview">Cerrar</button>
     </div>
   </div>
-
   <script>
     let contadores = { B: 0, B1: 0, C: 0, Pendientes: 0 };
 
@@ -209,8 +208,8 @@
       contadores = { B: 0, B1: 0, C: 0, Pendientes: 0 };
       actualizar();
     }
-
-    // === FUNCIÓN capturar() ACTUALIZADA CON FECHA Y HORA DE TIJUANA ===
+    
+	// === FUNCIÓN capturar() ACTUALIZADA CON FECHA Y HORA DE TIJUANA ===
     function capturar() {
       // Obtener fecha y hora actual en Tijuana
       const now = new Date();
@@ -234,7 +233,9 @@
 
       const mesCapitalizado = mes.charAt(0).toUpperCase() + mes.slice(1);
       const fechaHora = `${dia} de ${mesCapitalizado} de ${año} ${hora}:${minuto} ${periodo}`;
+    
 
+    function capturar() {
       html2canvas(document.querySelector("#capturaZona"), {
         ignoreElements: (element) => {
           if (element.closest(".tarjeta") && element.tagName === "BUTTON") return true;
@@ -245,14 +246,13 @@
         let imgData = canvas.toDataURL("image/png");
         document.getElementById("previewImage").src = imgData;
         document.getElementById("previewModal").style.display = "flex";
-
         if (navigator.share) {
           canvas.toBlob(blob => {
             const file = new File([blob], "reporte.png", { type: "image/png" });
             navigator.share({
               files: [file],
               title: "Reporte PPO Inventario",
-              text: `Reporte de inventario PPO Baja California - ${fechaHora}`
+              text: "Reporte de inventario PPO Baja California" ${fechaHora}
             }).then(() => {
               resetearContadores();
               document.getElementById("previewModal").style.display = "none";
@@ -288,3 +288,5 @@
   </script>
 </body>
 </html>
+
+
